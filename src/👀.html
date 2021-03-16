@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="data:,">
+
+    <link rel="stylesheet" type="text/css" href="styles.scss" />
+</head>
+
+<body>
+
+    <div class="page">
+        <div class="form-group">
+            <h1>NFT <span id="code">...</span></h1>
+        </div>
+        <div class="form-group">
+            <div class="card card-body form-group">
+                <div class="text-center w-100" id="file-preview"></div>
+            </div>
+        </div>
+        <div id="result" class="d-none alert"></div>
+
+        <div class="footer">
+            <div>
+                This website displays files that exist publicly on the <a href="https://stellar.org">Stellar</a>
+                network.
+            </div>
+            <div>
+                The files displayed here are not hosted by this domain.
+            </div>
+            <div>
+                Version:
+                <script>document.write(`${process.env.VERSION || "dev"}`);</script>
+            </div>
+        </div>
+    </div>
+
+    <script src="👀.js"></script>
+    <script>init();</script>
+
+</body>
+
+</html>

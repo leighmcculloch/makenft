@@ -1,0 +1,33 @@
+{
+  "name": "makenft",
+  "version": "0.0.1",
+  "description": "",
+  "browserslist": [
+    "last 1 Chrome version"
+  ],
+  "scripts": {
+    "dev": "parcel src/index.html src/👀.html --no-hmr",
+    "build": "parcel build src/index.html src/👀.html --no-scope-hoist"
+  },
+  "author": "Leigh McCulloch",
+  "devDependencies": {
+    "@parcel/optimizer-cssnano": "^2.0.0-nightly.602",
+    "@parcel/optimizer-htmlnano": "^2.0.0-nightly.602",
+    "@parcel/packager-css": "^2.0.0-nightly.602",
+    "@parcel/packager-html": "^2.0.0-nightly.602",
+    "@parcel/transformer-css": "^2.0.0-nightly.602",
+    "@parcel/transformer-html": "^2.0.0-nightly.602",
+    "@parcel/transformer-postcss": "^2.0.0-nightly.602",
+    "@parcel/transformer-posthtml": "^2.0.0-nightly.602",
+    "@parcel/transformer-sass": "^2.0.0-nightly.602",
+    "cssnano": "^4.1.10",
+    "postcss": "^8.2.6",
+    "sass": "^1.32.7"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^4.2.2",
+    "bootstrap": "^4.6.0",
+    "parcel": "^2.0.0-beta.1",
+    "stellar-sdk": "^8.0.0"
+  }
+}

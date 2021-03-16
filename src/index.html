@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" href="data:,">
+
+  <link rel="stylesheet" type="text/css" href="styles.scss" />
+</head>
+
+<body>
+
+  <div class="page">
+    <div class="form-group">
+      <h1>Create an NFT on <a href="https://stellar.org">Stellar</a></h1>
+    </div>
+    <div class="create form-group">
+      <div class="card card-body form-group">
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend w-18"><span class="input-group-text w-100">Symbol</span></div>
+            <input class="form-control" id="code" placeholder="Enter a symbol for your NFT (e.g. COOKIE)">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend w-18"><span class="input-group-text w-100">File</span></div>
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="file-upload" accept="image/*" onchange="upload()">
+              <label class="custom-file-label" for="file" id="file-label">Choose file</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-none form-group" id="file-preview-group">
+          <div class="input-group">
+            <div class="input-group-prepend w-18"><span class="input-group-text w-100">File Preview</span></div>
+            <div class="file-preview input-group-text w-82" id="file-preview"></div>
+          </div>
+        </div>
+        <p>An NFT will be created on the <a href="https://stellar.org">Stellar</a> network. If a file is uploaded it
+          will be <strong>permanently</strong> stored on the Stellar network. It will not be possible to delete the
+          file from the network.
+        </p>
+        <p>Your account will pay the issuing account reserve and all transactions fees. The reserve will not be
+          reclaimable.</p>
+        <p class="mb-0">Once the NFT is created you can send or sell your NFT using your <a
+            href="https://www.stellar.org/ecosystem/projects?tab=wallets#director">wallet</a>, or <a
+            href="https://www.stellarx.com/">DEX app</a>.</p>
+      </div>
+    </div>
+    <div id="result" class="d-none alert"></div>
+    <div class="form-group text-center">
+      <button id="wallet-button" class="btn btn-outline-primary btn-lg btn-block" type="button" onclick="add()">
+        ...
+      </button>
+      <button id="create-button" class="d-none btn btn-primary btn-lg btn-block" type="button" onclick="create()">
+        😊 Create my NFT 🥳
+      </button>
+      <button id="view-button" class="d-none btn btn-outline-primary btn-lg btn-block" type="button" onclick="view()">
+        👩‍🔬 View Transaction in the Laboratory 🧑‍🔬
+      </button>
+    </div>
+
+    <div class="footer">
+      <div>
+        Network
+        <select class="form-select" id="network">
+          <option value="pubnet" selected>Public</option>
+          <option value="testnet">Testnet</option>
+        </select>
+      </div>
+      <div>
+        Version:
+        <script>document.write(`${process.env.VERSION || "dev"}`);</script>
+      </div>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
+  <script>init();</script>
+
+</body>
+
+</html>
