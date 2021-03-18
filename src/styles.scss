@@ -26,6 +26,17 @@ h1 {
     font-size: 1.5rem;
 }
 
+.file-upload {
+    .custom-file-label {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .custom-select {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
+
 .file-preview {
     text-align: center;
     padding: 0;

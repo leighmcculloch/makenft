@@ -1,4 +1,5 @@
 import StellarSdk from 'stellar-sdk';
+import * as ipfsCore from 'ipfs-core';
 import * as wallet from './rabet.js';
 import * as config from './config.js';
 
@@ -104,19 +105,33 @@ async function build() {
     const code = document.getElementById("code").value;
     const fileUpload = document.getElementById("file-upload");
 
-    let dataUrlParts = [];
+    const dataLoc = document.getElementById("data-loc").value;
+    let dataParts = [];
     if (fileUpload.files.length > 0) {
         const file = fileUpload.files[0];
-        const dataUrl = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-            reader.readAsDataURL(file);
-        });
-        dataUrlParts = dataUrl.match(/.{1,64}/g);
-        if (dataUrlParts.length > 999) {
-            throw new Error("File too big. Max size approximately 48kb.");
+        let data = "";
+        if (dataLoc == "ipfs") {
+            const buffer = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsArrayBuffer(file);
+            });
+            const ipfs = await ipfsCore.create()
+            const { cid } = await ipfs.add(buffer)
+            data = getConfig().ipfsUrl(cid.string);
+        } else if (dataLoc == "stellar") {
+            data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            });
         }
+        dataParts = data.match(/.{1,64}/g);
+    }
+    if (dataParts.length > 999) {
+        throw new Error("File too big. Max size approximately 48kb.");
     }
 
     const issuerKey = StellarSdk.Keypair.random();
@@ -137,11 +152,14 @@ async function build() {
     transaction.addMemo(StellarSdk.Memo.text('Create NFT'));
     transaction.addOperation(StellarSdk.Operation.beginSponsoringFutureReserves({ sponsoredId: issuerKey.publicKey() }));
     transaction.addOperation(StellarSdk.Operation.createAccount({ destination: issuerKey.publicKey(), startingBalance: "0" }));
-    for (let i = 0; i < dataUrlParts.length; i++) {
+    if (dataParts.length > 0) {
+        transaction.addOperation(StellarSdk.Operation.manageData({ source: issuerKey.publicKey(), name: "dataloc", value: dataLoc }));
+    }
+    for (let i = 0; i < dataParts.length; i++) {
         transaction.addOperation(StellarSdk.Operation.manageData({
             source: issuerKey.publicKey(),
             name: `data[${i}]`,
-            value: dataUrlParts[i],
+            value: dataParts[i],
         }));
     }
     transaction.addOperation(StellarSdk.Operation.endSponsoringFutureReserves({ source: issuerKey.publicKey() }))
@@ -173,7 +191,7 @@ async function upload() {
         const file = fileUpload.files[0];
 
         const filename = fileUpload.value.replace("C:\\fakepath\\", "");
-        const sizeKB = file.size/1024;
+        const sizeKB = file.size / 1024;
         fileLabel.innerText = `${filename} (${sizeKB} KB)`;
 
         const fileUrl = window.URL.createObjectURL(file);
