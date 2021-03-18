@@ -12,11 +12,11 @@
 
 <body>
 
-  <div class="page">
+  <div class="page create">
     <div class="form-group">
       <h1>Create an NFT on <a href="https://stellar.org">Stellar</a></h1>
     </div>
-    <div class="create form-group">
+    <div class="form-group">
       <div class="card card-body form-group">
         <div class="form-group">
           <div class="input-group">
@@ -39,18 +39,18 @@
             <div class="file-preview input-group-text w-82" id="file-preview"></div>
           </div>
         </div>
-        <p>An NFT will be created on the <a href="https://stellar.org">Stellar</a> network. If a file is uploaded it
-          will be <strong>permanently</strong> stored on the Stellar network. It will not be possible to delete the
-          file from the network.
+        <p>An NFT will be created on the <a href="https://stellar.org">Stellar</a> network by publishing the information
+          entered here to the public Stellar network. If a file is uploaded it will be <strong>permanently</strong>
+          stored on the public Stellar network. It will not be possible to delete the file from the network.
         </p>
         <p>Your account will pay the issuing account reserve and all transactions fees. The reserve will not be
           reclaimable.</p>
         <p class="mb-0">Once the NFT is created you can send or sell your NFT using your <a
             href="https://www.stellar.org/ecosystem/projects?tab=wallets#director">wallet</a>, or <a
-            href="https://www.stellarx.com/">DEX app</a>.</p>
+            href="https://www.stellarterm.com/">DEX app</a>.</p>
       </div>
     </div>
-    <div id="result" class="d-none alert"></div>
+    <div id="result" class="result d-none alert"></div>
     <div class="form-group text-center">
       <button id="wallet-button" class="btn btn-outline-primary btn-lg btn-block" type="button" onclick="add()">
         ...
@@ -72,8 +72,10 @@
         </select>
       </div>
       <div>
+        <a href="https://github.com/leighmcculloch/makenft" target="_blank" rel="noopener">Open Source</a>
+        |
         Version:
-        <script>document.write(process.env.VERSION.substring(0, 7) || "dev");</script>
+        <script>document.write((process.env.VERSION || "dev").substring(0, 7));</script>
       </div>
     </div>
   </div>

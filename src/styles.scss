@@ -40,6 +40,17 @@ h1 {
     word-break: break-all;
 }
 
+.page.view {
+    .result {
+        text-align: center;
+    }
+
+    .spinner {
+        width: 100px;
+        height: 100px;
+    }
+}
+
 .footer {
     font-size:0.9em;
     text-align: center;

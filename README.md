@@ -6,11 +6,13 @@ Deployed at [makenft.web.app].
 
 ## Development
 
-### Run locally
+### Install dependencies
 
 ```
 npm install
 ```
+
+### Run locally
 
 ```
 npm run dev

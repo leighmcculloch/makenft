@@ -81,7 +81,7 @@ async function create() {
     const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(signedXdr, getConfig().networkPassphrase);
     const result = await getConfig().horizonServer.submitTransaction(signedTransaction);
     console.log(result);
-    resultSuccess(`🎉 View your NFT <a href="/👀.html#${getConfig().network}:${code}-${issuer}">here</a> or on a <a href="${getConfig().explorerAssetUrl(code, issuer)}">block explorer</a>.`);
+    resultSuccess(`🎉 View your NFT <a href="${getConfig().viewUrl(code, issuer)}">here</a>.`);
 
     document.getElementById("create-button").removeAttribute("disabled");
     document.getElementById("view-button").removeAttribute("disabled");

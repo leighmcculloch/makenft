@@ -34,9 +34,9 @@ async function init() {
     const code = assetParts[0];
     const issuer = assetParts[1];
 
-    document.getElementById("code").innerText = code;
+    const cfg = config.getConfig(network);
 
-    const account = await config.getConfig(network).horizonServer.loadAccount(issuer);
+    const account = await cfg.horizonServer.loadAccount(issuer);
     let data = "";
     for (let i = 0; ; i++) {
         const value = account.data_attr[`data[${i}]`];
@@ -49,7 +49,17 @@ async function init() {
     const preview = document.createElement("img");
     preview.src = data;
     const filePreview = document.getElementById("file-preview");
+    while (filePreview.firstChild) {
+        filePreview.removeChild(filePreview.firstChild);
+    }
     filePreview.appendChild(preview);
+
+    document.getElementById("code").innerText = code;
+    resultSuccess(
+        `View this NFT on a <a href="${cfg.explorerAssetUrl(code, issuer)}">block explorer</a>.</br>` +
+        `See who currently owns ${code} <a href="${cfg.explorerAssetHoldersUrl(code, issuer)}">here</a>.</br>` +
+        `Make an offer to buy or sell this NFT using a <a href="${cfg.dexAssetUrl(code, issuer)}">DEX app</a>.`
+    );
 }
 
 function wrapErrorHandling(f) {
@@ -67,5 +77,14 @@ function resultError(error) {
     const result = document.getElementById("result");
     result.innerText = error.toString();
     result.classList.remove("d-none");
+    result.classList.remove("alert-success");
     result.classList.add("alert-danger");
+}
+
+function resultSuccess(html) {
+    const result = document.getElementById("result");
+    result.innerHTML = html;
+    result.classList.remove("d-none");
+    result.classList.remove("alert-danger");
+    result.classList.add("alert-info");
 }
