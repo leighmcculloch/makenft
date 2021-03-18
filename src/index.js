@@ -119,7 +119,7 @@ async function build() {
             });
             const ipfs = await ipfsCore.create()
             const { cid } = await ipfs.add(buffer)
-            data = getConfig().ipfsUrl(cid.string);
+            data = `ipfs://${cid.string}`;
         } else if (dataLoc == "stellar") {
             data = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -152,9 +152,6 @@ async function build() {
     transaction.addMemo(StellarSdk.Memo.text('Create NFT'));
     transaction.addOperation(StellarSdk.Operation.beginSponsoringFutureReserves({ sponsoredId: issuerKey.publicKey() }));
     transaction.addOperation(StellarSdk.Operation.createAccount({ destination: issuerKey.publicKey(), startingBalance: "0" }));
-    if (dataParts.length > 0) {
-        transaction.addOperation(StellarSdk.Operation.manageData({ source: issuerKey.publicKey(), name: "dataloc", value: dataLoc }));
-    }
     for (let i = 0; i < dataParts.length; i++) {
         transaction.addOperation(StellarSdk.Operation.manageData({
             source: issuerKey.publicKey(),

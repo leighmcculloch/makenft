@@ -46,6 +46,10 @@ async function init() {
         data += atob(value);
     }
 
+    if (data.startsWith("ipfs://")) {
+       data = cfg.ipfsUrl(data.substring(7));
+    }
+
     const preview = document.createElement("img");
     preview.src = data;
     const filePreview = document.getElementById("file-preview");
