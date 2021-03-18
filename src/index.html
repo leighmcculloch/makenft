@@ -73,7 +73,7 @@
       </div>
       <div>
         Version:
-        <script>document.write(`${process.env.VERSION || "dev"}`);</script>
+        <script>document.write(process.env.VERSION.substring(0, 7) || "dev");</script>
       </div>
     </div>
   </div>
