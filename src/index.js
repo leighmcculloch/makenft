@@ -114,6 +114,7 @@ async function getIpfsNode() {
 async function build() {
     const code = document.getElementById("code").value;
     const fileUpload = document.getElementById("file-upload");
+    const description = document.getElementById("description").value;
 
     let nftAssetUrlParts = [];
     let nftAssetHash = null;
@@ -130,6 +131,22 @@ async function build() {
         const url = `ipfs://${cid.string}`;
         nftAssetUrlParts = url.match(/.{1,64}/g);
         nftAssetHash = await crypto.subtle.digest("SHA-256", buffer);
+    }
+
+    let nftMetaUrlParts = null;
+    let nftMetaHash = null;
+    if (description.length > 0) {
+        const meta = {
+            "description": description,
+        }
+        const metaJson = JSON.stringify(meta, null, "\t");
+        const metaEncoder = new TextEncoder();
+        const metaData = metaEncoder.encode(metaJson);
+        const ipfsNode = await getIpfsNode();
+        const { cid } = await ipfsNode.add(metaData)
+        const url = `ipfs://${cid.string}`;
+        nftMetaUrlParts = url.match(/.{1,64}/g);
+        nftMetaHash = await crypto.subtle.digest("SHA-256", metaData);
     }
 
     const issuerKey = StellarSdk.Keypair.random();
@@ -162,6 +179,20 @@ async function build() {
             source: issuerKey.publicKey(),
             name: `nft.asset.sha256`,
             value: arrayBufferToHex(nftAssetHash),
+        }));
+    }
+    for (let i = 0; i < nftMetaUrlParts.length; i++) {
+        transaction.addOperation(StellarSdk.Operation.manageData({
+            source: issuerKey.publicKey(),
+            name: `nft.meta.url[${i}]`,
+            value: nftMetaUrlParts[i],
+        }));
+    }
+    if (nftMetaHash) {
+        transaction.addOperation(StellarSdk.Operation.manageData({
+            source: issuerKey.publicKey(),
+            name: `nft.meta.sha256`,
+            value: arrayBufferToHex(nftMetaHash),
         }));
     }
     transaction.addOperation(StellarSdk.Operation.endSponsoringFutureReserves({ source: issuerKey.publicKey() }))
