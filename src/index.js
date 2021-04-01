@@ -1,4 +1,5 @@
 import StellarSdk from 'stellar-sdk';
+import arrayBufferToHex from 'array-buffer-to-hex';
 import * as ipfsCore from 'ipfs-core';
 import * as wallet from './rabet.js';
 import * as config from './config.js';
@@ -114,7 +115,8 @@ async function build() {
     const code = document.getElementById("code").value;
     const fileUpload = document.getElementById("file-upload");
 
-    let urlParts = [];
+    let nftAssetUrlParts = [];
+    let nftAssetHash = null;
     if (fileUpload.files.length > 0) {
         const file = fileUpload.files[0];
         const buffer = await new Promise((resolve, reject) => {
@@ -126,7 +128,8 @@ async function build() {
         const ipfsNode = await getIpfsNode();
         const { cid } = await ipfsNode.add(buffer)
         const url = `ipfs://${cid.string}`;
-        urlParts = url.match(/.{1,64}/g);
+        nftAssetUrlParts = url.match(/.{1,64}/g);
+        nftAssetHash = await crypto.subtle.digest("SHA-256", buffer);
     }
 
     const issuerKey = StellarSdk.Keypair.random();
@@ -147,11 +150,18 @@ async function build() {
     transaction.addMemo(StellarSdk.Memo.text('Create NFT'));
     transaction.addOperation(StellarSdk.Operation.beginSponsoringFutureReserves({ sponsoredId: issuerKey.publicKey() }));
     transaction.addOperation(StellarSdk.Operation.createAccount({ destination: issuerKey.publicKey(), startingBalance: "0" }));
-    for (let i = 0; i < urlParts.length; i++) {
+    for (let i = 0; i < nftAssetUrlParts.length; i++) {
         transaction.addOperation(StellarSdk.Operation.manageData({
             source: issuerKey.publicKey(),
-            name: `nft.url[${i}]`,
-            value: urlParts[i],
+            name: `nft.asset.url[${i}]`,
+            value: nftAssetUrlParts[i],
+        }));
+    }
+    if (nftAssetHash) {
+        transaction.addOperation(StellarSdk.Operation.manageData({
+            source: issuerKey.publicKey(),
+            name: `nft.asset.sha256`,
+            value: arrayBufferToHex(nftAssetHash),
         }));
     }
     transaction.addOperation(StellarSdk.Operation.endSponsoringFutureReserves({ source: issuerKey.publicKey() }))

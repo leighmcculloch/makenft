@@ -37,28 +37,43 @@ async function init() {
     const cfg = config.getConfig(network);
 
     const account = await cfg.horizonServer.loadAccount(issuer);
-    let nftUrl = "";
+    let nftAssetUrl = "";
     for (let i = 0; ; i++) {
-        const value = account.data_attr[`nft.url[${i}]`];
+        const value = account.data_attr[`nft.asset.url[${i}]`];
         if (typeof value === "undefined") {
             break;
         }
-        nftUrl += atob(value);
+        nftAssetUrl += atob(value);
     }
 
-    if (nftUrl.startsWith("ipfs://")) {
-        nftUrl = cfg.ipfsUrl(nftUrl.substring(7));
+    if (nftAssetUrl.startsWith("ipfs://")) {
+        nftAssetUrl = cfg.ipfsUrl(nftAssetUrl.substring(7));
     }
 
     const preview = document.createElement("img");
-    preview.src = nftUrl;
+    preview.src = nftAssetUrl;
     const filePreview = document.getElementById("file-preview");
     while (filePreview.firstChild) {
         filePreview.removeChild(filePreview.firstChild);
     }
     filePreview.appendChild(preview);
 
+    const nftAssetHash = (() => {
+        const sha256 = account.data_attr[`nft.asset.sha256`];
+        if (sha256) {
+            return atob(sha256);
+        }
+        return null;
+    })();
+
     document.getElementById("code").innerText = code;
+    let text =
+        `Asset: <a href="${nftAssetUrl}">${nftAssetUrl}</a>`;
+    if (nftAssetHash) {
+        text += `<br/>` +
+            `Hash: ${nftAssetHash}`;
+    }
+    resultData(text);
     resultSuccess(
         `View this NFT on a <a href="${cfg.explorerAssetUrl(code, issuer)}">block explorer</a>.</br>` +
         `See who currently owns ${code} <a href="${cfg.explorerAssetHoldersUrl(code, issuer)}">here</a>.</br>` +
@@ -91,4 +106,11 @@ function resultSuccess(html) {
     result.classList.remove("d-none");
     result.classList.remove("alert-danger");
     result.classList.add("alert-info");
+}
+
+function resultData(html) {
+    const result = document.getElementById("result-data");
+    result.innerHTML = html;
+    result.classList.remove("d-none");
+    result.classList.add("alert-success");
 }
