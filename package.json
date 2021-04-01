@@ -25,7 +25,6 @@
     "sass": "^1.32.7"
   },
   "dependencies": {
-    "@fontsource/ibm-plex-sans": "^4.2.2",
     "array-buffer-to-hex": "^1.0.0",
     "bootstrap": "^4.6.0",
     "ipfs-core": "^0.5.4",
