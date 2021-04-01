@@ -6,8 +6,8 @@
     "last 1 Chrome version"
   ],
   "scripts": {
-    "dev": "parcel src/index.html src/👀.html --no-hmr",
-    "build": "parcel build src/index.html src/👀.html --no-scope-hoist"
+    "dev": "parcel src/index.html src/view.html --no-hmr",
+    "build": "parcel build src/index.html src/view.html --no-scope-hoist"
   },
   "author": "Leigh McCulloch",
   "devDependencies": {
