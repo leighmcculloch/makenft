@@ -101,37 +101,32 @@ async function view() {
     document.getElementById("view-button").removeAttribute("disabled");
 }
 
+let ipfsNode = null;
+async function getIpfsNode() {
+    if (ipfsNode !== null) {
+        return ipfsNode;
+    }
+    ipfsNode = await ipfsCore.create();
+    return ipfsNode;
+}
+
 async function build() {
     const code = document.getElementById("code").value;
     const fileUpload = document.getElementById("file-upload");
 
-    const dataLoc = document.getElementById("data-loc").value;
-    let dataParts = [];
+    let urlParts = [];
     if (fileUpload.files.length > 0) {
         const file = fileUpload.files[0];
-        let data = "";
-        if (dataLoc == "ipfs") {
-            const buffer = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = (error) => reject(error);
-                reader.readAsArrayBuffer(file);
-            });
-            const ipfs = await ipfsCore.create()
-            const { cid } = await ipfs.add(buffer)
-            data = `ipfs://${cid.string}`;
-        } else if (dataLoc == "stellar") {
-            data = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = (error) => reject(error);
-                reader.readAsDataURL(file);
-            });
-        }
-        dataParts = data.match(/.{1,64}/g);
-    }
-    if (dataParts.length > 999) {
-        throw new Error("File too big. Max size approximately 48kb.");
+        const buffer = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+        });
+        const ipfsNode = await getIpfsNode();
+        const { cid } = await ipfsNode.add(buffer)
+        const url = `ipfs://${cid.string}`;
+        urlParts = url.match(/.{1,64}/g);
     }
 
     const issuerKey = StellarSdk.Keypair.random();
@@ -152,11 +147,11 @@ async function build() {
     transaction.addMemo(StellarSdk.Memo.text('Create NFT'));
     transaction.addOperation(StellarSdk.Operation.beginSponsoringFutureReserves({ sponsoredId: issuerKey.publicKey() }));
     transaction.addOperation(StellarSdk.Operation.createAccount({ destination: issuerKey.publicKey(), startingBalance: "0" }));
-    for (let i = 0; i < dataParts.length; i++) {
+    for (let i = 0; i < urlParts.length; i++) {
         transaction.addOperation(StellarSdk.Operation.manageData({
             source: issuerKey.publicKey(),
-            name: `data[${i}]`,
-            value: dataParts[i],
+            name: `nft.url[${i}]`,
+            value: urlParts[i],
         }));
     }
     transaction.addOperation(StellarSdk.Operation.endSponsoringFutureReserves({ source: issuerKey.publicKey() }))
@@ -184,9 +179,7 @@ async function upload() {
         filePreview.removeChild(filePreview.firstChild);
     }
     if (fileUpload.files.length > 0) {
-
         const file = fileUpload.files[0];
-
         const filename = fileUpload.value.replace("C:\\fakepath\\", "");
         const sizeKB = file.size / 1024;
         fileLabel.innerText = `${filename} (${sizeKB} KB)`;

@@ -37,21 +37,21 @@ async function init() {
     const cfg = config.getConfig(network);
 
     const account = await cfg.horizonServer.loadAccount(issuer);
-    let data = "";
+    let nftUrl = "";
     for (let i = 0; ; i++) {
-        const value = account.data_attr[`data[${i}]`];
+        const value = account.data_attr[`nft.url[${i}]`];
         if (typeof value === "undefined") {
             break;
         }
-        data += atob(value);
+        nftUrl += atob(value);
     }
 
-    if (data.startsWith("ipfs://")) {
-       data = cfg.ipfsUrl(data.substring(7));
+    if (nftUrl.startsWith("ipfs://")) {
+        nftUrl = cfg.ipfsUrl(nftUrl.substring(7));
     }
 
     const preview = document.createElement("img");
-    preview.src = data;
+    preview.src = nftUrl;
     const filePreview = document.getElementById("file-preview");
     while (filePreview.firstChild) {
         filePreview.removeChild(filePreview.firstChild);
