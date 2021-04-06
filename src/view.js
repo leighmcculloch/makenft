@@ -121,8 +121,8 @@ async function init() {
     }
 
     resultSuccess(
-        `View this NFT on a <a href="${cfg.explorerAssetUrl(code, issuer)}">block explorer</a>.</br>` +
-        `See who currently owns ${code} <a href="${cfg.explorerAssetHoldersUrl(code, issuer)}">here</a>.</br>` +
+        `View on a <a href="${cfg.explorerAssetUrl(code, issuer)}">block explorer</a>.</br>` +
+        `See the current owner(s) <a href="${cfg.explorerAssetHoldersUrl(code, issuer)}">here</a>.</br>` +
         `Make an offer to buy or sell this NFT using a <a href="${cfg.dexAssetUrl(code, issuer)}">DEX app</a>.`
     );
 }
