@@ -113,6 +113,7 @@ async function getIpfsNode() {
 
 async function build() {
     const code = document.getElementById("code").value;
+    const quantity = document.getElementById("quantity").value;
     const fileUpload = document.getElementById("file-upload");
     const description = document.getElementById("description").value;
 
@@ -196,8 +197,8 @@ async function build() {
         }));
     }
     transaction.addOperation(StellarSdk.Operation.endSponsoringFutureReserves({ source: issuerKey.publicKey() }))
-    transaction.addOperation(StellarSdk.Operation.changeTrust({ asset: asset, limit: "1.0" }));
-    transaction.addOperation(StellarSdk.Operation.payment({ source: issuerKey.publicKey(), destination: accountPublicKey, asset: asset, amount: "1.0" }));
+    transaction.addOperation(StellarSdk.Operation.changeTrust({ asset: asset, limit: quantity }));
+    transaction.addOperation(StellarSdk.Operation.payment({ source: issuerKey.publicKey(), destination: accountPublicKey, asset: asset, amount: quantity }));
     transaction.addOperation(StellarSdk.Operation.setOptions({ source: issuerKey.publicKey(), setFlags: StellarSdk.AuthImmutableFlag, masterWeight: 0, lowThreshold: 0, medThreshold: 0, highThreshold: 0 }));
 
     const transactionBuilt = transaction.build();
