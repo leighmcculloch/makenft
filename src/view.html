@@ -19,22 +19,29 @@
     <div class="page view">
         <div class="form-group">
             <h1><span id="code">Loading NFT...</span></h1>
-        </div>
-        <div class="form-group">
-            <div class="text-center w-100 file-preview" id="file-preview">
-                <div class="spinner spinner-grow text-light" role="status">
-                    <span class="sr-only">Loading...</span>
+            <div class="card">
+                <div id="file-preview" class="file-preview card-img-top"></div>
+                <div class="card-body">
+                    <p id="result-data" class="result-image-data card-text"></p>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <div id="result-data" class="result d-none alert"></div>
+            <div class="card">
+                <div class="card-header">
+                    <pre id="result-meta-json" class="result-meta-json"></pre>
+                </div>
+                <div class="card-body">
+                    <p id="result-meta" class="result-meta card-text"></p>
+                </div>
+            </div>
         </div>
         <div class="form-group">
-            <div id="result-meta" class="result d-none alert"></div>
-        </div>
-        <div class="form-group">
-            <div id="result" class="result d-none alert"></div>
+            <div class="card">
+                <div class="card-body">
+                    <p id="result" class="result card-text"></p>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <a class="btn btn-dark btn-lg btn-block" href="/">

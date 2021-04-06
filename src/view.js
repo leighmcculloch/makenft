@@ -1,4 +1,5 @@
 import StellarSdk from 'stellar-sdk';
+import * as ipfsCore from 'ipfs-core';
 import * as config from './config.js';
 
 const version = `${process.env.VERSION || "dev"}`;
@@ -46,8 +47,9 @@ async function init() {
         }
         nftAssetUrl += atob(value);
     }
+    let nftAssetUrlLink = nftAssetUrl;
     if (nftAssetUrl.startsWith("ipfs://")) {
-        nftAssetUrl = cfg.ipfsUrl(nftAssetUrl.substring(7));
+        nftAssetUrlLink = cfg.ipfsUrl(nftAssetUrl.substring(7));
     }
     const nftAssetHash = (() => {
         const sha256 = account.data_attr[`nft.asset.sha256`];
@@ -65,8 +67,9 @@ async function init() {
         }
         nftMetaUrl += atob(value);
     }
+    let nftMetaUrlLink = nftAssetUrl;
     if (nftMetaUrl.startsWith("ipfs://")) {
-        nftMetaUrl = cfg.ipfsUrl(nftMetaUrl.substring(7));
+        nftMetaUrlLink = cfg.ipfsUrl(nftMetaUrl.substring(7));
     }
     const nftMetaHash = (() => {
         const sha256 = account.data_attr[`nft.meta.sha256`];
@@ -78,7 +81,7 @@ async function init() {
 
     document.getElementById("code").innerText = code;
     const preview = document.createElement("img");
-    preview.src = nftAssetUrl;
+    preview.src = nftAssetUrlLink;
     const filePreview = document.getElementById("file-preview");
     while (filePreview.firstChild) {
         filePreview.removeChild(filePreview.firstChild);
@@ -86,7 +89,7 @@ async function init() {
     filePreview.appendChild(preview);
 
     let text =
-        `Asset: <a href="${nftAssetUrl}">${nftAssetUrl}</a>`;
+        `Asset: <a href="${nftAssetUrlLink}">${nftAssetUrl}</a>`;
     if (nftAssetHash) {
         text += `<br/>` +
             `Hash: ${nftAssetHash}`;
@@ -95,11 +98,23 @@ async function init() {
 
     let meta = "";
     if (nftMetaUrl !== "") {
-        meta += `Meta: <a href="${nftMetaUrl}">${nftMetaUrl}</a>`;
+        meta += `Meta: <a href="${nftMetaUrlLink}">${nftMetaUrl}</a>`;
     }
     if (nftMetaHash) {
         meta += `<br/>` +
             `Hash: ${nftMetaHash}`;
+    }
+    if (nftMetaUrl !== "" && nftMetaUrl.startsWith("ipfs://")) {
+        const nftMetaCid = nftMetaUrl.substring(7);
+        const ipfsNode = await getIpfsNode();
+        const stream = ipfsNode.cat(nftMetaCid);
+        let nftMetaData = "";
+        for await (const chunk of stream) {
+            nftMetaData += chunk.toString()
+        }
+        const nftMetaJson = JSON.parse(nftMetaData);
+        const metaJsonHtml = `${JSON.stringify(nftMetaJson, null, "  ")}`;
+        resultMetaJson(metaJsonHtml);
     }
     if (meta !== "") {
         resultMeta(meta);
@@ -126,29 +141,33 @@ function wrapErrorHandling(f) {
 function resultError(error) {
     const result = document.getElementById("result");
     result.innerText = error.toString();
-    result.classList.remove("d-none");
-    result.classList.remove("alert-success");
-    result.classList.add("alert-danger");
 }
 
 function resultSuccess(html) {
     const result = document.getElementById("result");
     result.innerHTML = html;
-    result.classList.remove("d-none");
-    result.classList.remove("alert-danger");
-    result.classList.add("alert-secondary");
 }
 
 function resultData(html) {
     const result = document.getElementById("result-data");
     result.innerHTML = html;
-    result.classList.remove("d-none");
-    result.classList.add("alert-secondary");
 }
 
 function resultMeta(html) {
     const result = document.getElementById("result-meta");
     result.innerHTML = html;
-    result.classList.remove("d-none");
-    result.classList.add("alert-secondary");
+}
+
+function resultMetaJson(html) {
+    const result = document.getElementById("result-meta-json");
+    result.innerHTML = html;
+}
+
+let ipfsNode = null;
+async function getIpfsNode() {
+    if (ipfsNode !== null) {
+        return ipfsNode;
+    }
+    ipfsNode = await ipfsCore.create();
+    return ipfsNode;
 }
