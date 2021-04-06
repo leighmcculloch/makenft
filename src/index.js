@@ -164,7 +164,7 @@ async function build() {
 
     const transaction = new StellarSdk.TransactionBuilder(account, { fee, networkPassphrase: getConfig().networkPassphrase });
     transaction.setTimeout(300);
-    transaction.addMemo(StellarSdk.Memo.text('Create NFT'));
+    transaction.addMemo(StellarSdk.Memo.text(`Create ${code} NFT ✨`));
     transaction.addOperation(StellarSdk.Operation.beginSponsoringFutureReserves({ sponsoredId: issuerKey.publicKey() }));
     transaction.addOperation(StellarSdk.Operation.createAccount({ destination: issuerKey.publicKey(), startingBalance: "0" }));
     for (let i = 0; i < nftAssetUrlParts.length; i++) {
