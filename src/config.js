@@ -11,7 +11,7 @@ export function getConfig(network) {
                 viewUrl: (code, issuer) => `/view.html#testnet:${code}-${issuer}`,
                 explorerAssetUrl: (code, issuer) => `https://stellar.expert/explorer/testnet/asset/${code}-${issuer}`,
                 explorerAssetHoldersUrl: (code, issuer) => `https://stellar.expert/explorer/testnet/asset/${code}-${issuer}?filter=asset-holders`,
-                dexAssetUrl: (code, issuer) => `https://stellarterm.com/exchange/${code}-${issuer}/XLM-native`,
+                dexAssetUrl: (code, issuer) => `https://stellarterm.com/exchange/${code}-${issuer}/XLM-native/testnet`,
             };
         case "pubnet":
             return {
