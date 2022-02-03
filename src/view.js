@@ -2,9 +2,6 @@ import StellarSdk from 'stellar-sdk';
 import * as ipfsCore from 'ipfs-core';
 import * as config from './config.js';
 
-const version = `${process.env.VERSION || "dev"}`;
-console.log(`Version: ${version}`);
-
 window.init = wrapErrorHandling(init);
 
 async function init() {
@@ -171,3 +168,5 @@ async function getIpfsNode() {
     ipfsNode = await ipfsCore.create();
     return ipfsNode;
 }
+
+init();

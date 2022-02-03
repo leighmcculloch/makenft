@@ -1,11 +1,9 @@
 import StellarSdk from 'stellar-sdk';
 import arrayBufferToHex from 'array-buffer-to-hex';
 import * as ipfsCore from 'ipfs-core';
-import * as wallet from './rabet.js';
 import * as config from './config.js';
-
-const version = `${process.env.VERSION || "dev"}`;
-console.log(`Version: ${version}`);
+import * as wallet from './wallet-freighter.js';
+// import * as wallet from './wallet-rabet.js';
 
 function getConfig() {
     const network = document.getElementById("network").value;
@@ -60,7 +58,7 @@ async function init() {
         document.getElementById("create-button").classList.add("d-block");
         document.getElementById("view-button").classList.add("d-block");
     } else {
-        walletButton.innerText = "Add the Rabet extension to Chrome";
+        walletButton.innerText = "Add the Freighter extension to Chrome";
         window.setTimeout(init, 500);
     }
 }
@@ -68,7 +66,7 @@ async function init() {
 async function add() {
     init();
     if (!wallet.isConnected()) {
-        window.open("https://rabet.io", "_blank", "noopener");
+        window.open("https://freighter.app", "_blank", "noopener");
     }
 }
 
@@ -235,3 +233,5 @@ async function upload() {
         filePreviewGroup.classList.add("d-none");
     }
 }
+
+init();
