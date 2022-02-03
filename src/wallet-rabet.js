@@ -2,6 +2,10 @@ export function isConnected() {
     return typeof window.rabet !== "undefined";
 }
 
+export async function getNetwork() {
+    return null;
+}
+
 export async function getPublicKey() {
     const result = await window.rabet.connect();
     return result.publicKey;

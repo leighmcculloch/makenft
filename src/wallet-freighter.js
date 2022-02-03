@@ -4,6 +4,17 @@ export function isConnected() {
     return freighterApi.isConnected();
 }
 
+export async function getNetwork() {
+    const network = await freighterApi.getNetwork();
+    switch (network) {
+        case "TESTNET":
+            return "testnet";
+        case "PUBLIC":
+            return "pubnet";
+    }
+    return null;
+}
+
 export async function getPublicKey() {
     return await freighterApi.getPublicKey();
 }

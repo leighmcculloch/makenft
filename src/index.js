@@ -54,6 +54,11 @@ function resultSuccess(html) {
 async function init() {
     const walletButton = document.getElementById("wallet-button");
     if (wallet.isConnected()) {
+        wallet.getNetwork().then(network => {
+            if (network !== null) {
+                document.getElementById("network").value = network;
+            }
+        });
         walletButton.classList.add("d-none");
         document.getElementById("create-button").classList.add("d-block");
         document.getElementById("view-button").classList.add("d-block");
