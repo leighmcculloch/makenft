@@ -21,7 +21,7 @@
     "array-buffer-to-hex": "^1.0.0",
     "bootstrap": "^4.6.0",
     "ipfs-core": "^0.5.4",
-    "stellar-sdk": "^8.0.0"
+    "stellar-sdk": "^8.2.3"
   },
   "browserslist": [
     "last 1 Chrome version"
