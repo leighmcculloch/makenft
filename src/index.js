@@ -115,7 +115,7 @@ async function build() {
     const fileUpload = document.getElementById("file-upload");
     const description = document.getElementById("description").value;
 
-    let nftAssetUrlParts = [];
+    let nftAssetUrl = [];
     let nftAssetHash = null;
     if (fileUpload.files.length > 0) {
         const file = fileUpload.files[0];
@@ -128,27 +128,35 @@ async function build() {
         const ipfsNode = await getIpfsNode();
         const { cid } = await ipfsNode.add(buffer)
         const url = `ipfs://${cid.string}`;
-        nftAssetUrlParts = url.match(/.{1,64}/g);
+        nftAssetUrl = url;
         nftAssetHash = await crypto.subtle.digest("SHA-256", buffer);
     }
 
+    const issuerKey = StellarSdk.Keypair.random();
+
+    let nftMetaCID = null;
     let nftMetaUrlParts = null;
     let nftMetaHash = null;
     if (description.length > 0) {
         const meta = {
+            "name": code,
             "description": description,
+            "url": nftAssetUrl,
+            "sha256": arrayBufferToHex(nftAssetHash),
+            "issuer": issuerKey.publicKey(),
+            "code": code,
         }
         const metaJson = JSON.stringify(meta, null, "\t");
         const metaEncoder = new TextEncoder();
         const metaData = metaEncoder.encode(metaJson);
         const ipfsNode = await getIpfsNode();
         const { cid } = await ipfsNode.add(metaData)
+        nftMetaCID = cid.string;
         const url = `ipfs://${cid.string}`;
         nftMetaUrlParts = url.match(/.{1,64}/g);
         nftMetaHash = await crypto.subtle.digest("SHA-256", metaData);
     }
 
-    const issuerKey = StellarSdk.Keypair.random();
     const asset = new StellarSdk.Asset(code, issuerKey.publicKey());
 
     const accountPublicKey = await wallet.getPublicKey();
@@ -166,38 +174,37 @@ async function build() {
     transaction.addMemo(StellarSdk.Memo.text(`Create ${code} NFT ✨`));
     transaction.addOperation(StellarSdk.Operation.beginSponsoringFutureReserves({ sponsoredId: issuerKey.publicKey() }));
     transaction.addOperation(StellarSdk.Operation.createAccount({ destination: issuerKey.publicKey(), startingBalance: "0" }));
-    for (let i = 0; i < nftAssetUrlParts.length; i++) {
+    transaction.addOperation(StellarSdk.Operation.manageData({
+        source: issuerKey.publicKey(),
+        name: `ipfshash`,
+        value: nftMetaCID,
+    }));
+    if (nftMetaUrlParts.length == 1) {
         transaction.addOperation(StellarSdk.Operation.manageData({
             source: issuerKey.publicKey(),
-            name: `nft.asset.url[${i}]`,
-            value: nftAssetUrlParts[i],
+            name: `url`,
+            value: nftMetaUrlParts[0],
         }));
-    }
-    if (nftAssetHash) {
-        transaction.addOperation(StellarSdk.Operation.manageData({
-            source: issuerKey.publicKey(),
-            name: `nft.asset.sha256`,
-            value: arrayBufferToHex(nftAssetHash),
-        }));
-    }
-    for (let i = 0; i < nftMetaUrlParts.length; i++) {
-        transaction.addOperation(StellarSdk.Operation.manageData({
-            source: issuerKey.publicKey(),
-            name: `nft.meta.url[${i}]`,
-            value: nftMetaUrlParts[i],
-        }));
+    } else {
+        for (let i = 0; i < nftMetaUrlParts.length; i++) {
+            transaction.addOperation(StellarSdk.Operation.manageData({
+                source: issuerKey.publicKey(),
+                name: `url[${i}]`,
+                value: nftMetaUrlParts[i],
+            }));
+        }
     }
     if (nftMetaHash) {
         transaction.addOperation(StellarSdk.Operation.manageData({
             source: issuerKey.publicKey(),
-            name: `nft.meta.sha256`,
+            name: `sha256`,
             value: arrayBufferToHex(nftMetaHash),
         }));
     }
     transaction.addOperation(StellarSdk.Operation.endSponsoringFutureReserves({ source: issuerKey.publicKey() }))
     transaction.addOperation(StellarSdk.Operation.changeTrust({ asset: asset, limit: quantity }));
     transaction.addOperation(StellarSdk.Operation.payment({ source: issuerKey.publicKey(), destination: accountPublicKey, asset: asset, amount: quantity }));
-    transaction.addOperation(StellarSdk.Operation.setOptions({ source: issuerKey.publicKey(), setFlags: StellarSdk.AuthImmutableFlag, masterWeight: 0, lowThreshold: 0, medThreshold: 0, highThreshold: 0 }));
+    transaction.addOperation(StellarSdk.Operation.setOptions({ source: issuerKey.publicKey(), masterWeight: 0 }));
 
     const transactionBuilt = transaction.build();
     transactionBuilt.sign(issuerKey);

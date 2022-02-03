@@ -36,45 +36,55 @@ async function init() {
 
     const account = await cfg.horizonServer.loadAccount(issuer);
 
-    let nftAssetUrl = "";
-    for (let i = 0; ; i++) {
-        const value = account.data_attr[`nft.asset.url[${i}]`];
-        if (typeof value === "undefined") {
-            break;
+    let nftMetaUrl = (() => {
+        const url = account.data_attr[`url`];
+        if (typeof url !== "undefined") {
+            return atob(url);
         }
-        nftAssetUrl += atob(value);
-    }
-    let nftAssetUrlLink = nftAssetUrl;
-    if (nftAssetUrl.startsWith("ipfs://")) {
-        nftAssetUrlLink = cfg.ipfsUrl(nftAssetUrl.substring(7));
-    }
-    const nftAssetHash = (() => {
-        const sha256 = account.data_attr[`nft.asset.sha256`];
-        if (sha256) {
-            return atob(sha256);
+        const ipfshash = account.data_attr[`ipfshash`];
+        if (typeof ipfshash !== "undefined") {
+            return `ipfs://${atob(ipfshash)}`;
         }
-        return null;
+        return "";
     })();
-
-    let nftMetaUrl = "";
     for (let i = 0; ; i++) {
-        const value = account.data_attr[`nft.meta.url[${i}]`];
+        const value = account.data_attr[`url[${i}]`];
         if (typeof value === "undefined") {
             break;
         }
         nftMetaUrl += atob(value);
     }
-    let nftMetaUrlLink = nftAssetUrl;
+    let nftMetaUrlLink = nftMetaUrl;
     if (nftMetaUrl.startsWith("ipfs://")) {
         nftMetaUrlLink = cfg.ipfsUrl(nftMetaUrl.substring(7));
     }
     const nftMetaHash = (() => {
-        const sha256 = account.data_attr[`nft.meta.sha256`];
+        const sha256 = account.data_attr[`sha256`];
         if (sha256) {
             return atob(sha256);
         }
         return null;
     })();
+    let nftMetaJson = {};
+    if (nftMetaUrl !== "" && nftMetaUrl.startsWith("ipfs://")) {
+        const nftMetaCid = nftMetaUrl.substring(7);
+        const ipfsNode = await getIpfsNode();
+        const stream = ipfsNode.cat(nftMetaCid);
+        let nftMetaData = "";
+        for await (const chunk of stream) {
+            nftMetaData += chunk.toString()
+        }
+        // TODO: Compare returned value with sha256.
+        nftMetaJson = JSON.parse(nftMetaData);
+    }
+    // TODO: Handle non-IPFS meta URLs.
+
+    let nftAssetUrl = nftMetaJson['url'];
+    let nftAssetUrlLink = nftAssetUrl;
+    if (nftAssetUrl.startsWith("ipfs://")) {
+        nftAssetUrlLink = cfg.ipfsUrl(nftAssetUrl.substring(7));
+    }
+    const nftAssetHash = nftMetaJson['sha256'];
 
     document.getElementById("code").innerText = code;
     const preview = document.createElement("img");
@@ -102,14 +112,6 @@ async function init() {
             `Hash: ${nftMetaHash}`;
     }
     if (nftMetaUrl !== "" && nftMetaUrl.startsWith("ipfs://")) {
-        const nftMetaCid = nftMetaUrl.substring(7);
-        const ipfsNode = await getIpfsNode();
-        const stream = ipfsNode.cat(nftMetaCid);
-        let nftMetaData = "";
-        for await (const chunk of stream) {
-            nftMetaData += chunk.toString()
-        }
-        const nftMetaJson = JSON.parse(nftMetaData);
         const metaJsonHtml = `${JSON.stringify(nftMetaJson, null, "  ")}`;
         resultMetaJson(metaJsonHtml);
     }
