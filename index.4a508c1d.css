@@ -9273,7 +9273,6 @@ h1 {
   word-break: break-all;
 }
 .page.view pre.result-meta-json {
-  white-space: pre-wrap;
   margin: 0;
 }
 .page.view .card-header {
