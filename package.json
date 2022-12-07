@@ -20,7 +20,7 @@
     "@stellar/freighter-api": "^1.1.2",
     "array-buffer-to-hex": "^1.0.0",
     "bootstrap": "^4.6.0",
-    "ipfs-core": "^0.5.4",
+    "ipfs-core": "^0.17.0",
     "stellar-sdk": "^10.0.0"
   },
   "browserslist": [
